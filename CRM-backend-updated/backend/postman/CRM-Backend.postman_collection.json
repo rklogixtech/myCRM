@@ -1,0 +1,547 @@
+{
+  "info": {
+    "name": "CRM Backend",
+    "description": "Full API collection for CRM Backend (Auth, Leads, Deals, Followups, Activities, Dashboard, Audit Logs)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "crm-backend-collection"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.accessToken) {",
+                  "        pm.environment.set('access_token', jsonData.data.accessToken);",
+                  "        pm.environment.set('refresh_token', jsonData.data.refreshToken);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Leads",
+      "item": [
+        {
+          "name": "Create Lead",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Smith\",\n  \"email\": \"alice@example.com\",\n  \"phone\": \"1234567890\",\n  \"company\": \"Acme Inc\",\n  \"source\": \"website\",\n  \"status\": \"new\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/leads",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leads"]
+            }
+          }
+        },
+        {
+          "name": "Get Leads",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/leads?page=1&limit=10&status=new",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leads"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "new", "disabled": true },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "assignedTo", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Lead By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/leads/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leads", ":id"],
+              "variable": [
+                { "key": "id", "value": "LEAD_ID_HERE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Lead",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"company\": \"Updated Corp\",\n  \"status\": \"contacted\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/leads/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leads", ":id"],
+              "variable": [
+                { "key": "id", "value": "LEAD_ID_HERE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Lead",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/leads/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leads", ":id"],
+              "variable": [
+                { "key": "id", "value": "LEAD_ID_HERE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Assign Lead",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignedTo\": \"USER_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/leads/:id/assign",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leads", ":id", "assign"],
+              "variable": [
+                { "key": "id", "value": "LEAD_ID_HERE" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deals",
+      "item": [
+        {
+          "name": "Create Deal",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lead\": \"LEAD_ID_HERE\",\n  \"title\": \"Big Enterprise Deal\",\n  \"value\": 50000,\n  \"stage\": \"discovery\",\n  \"expectedCloseDate\": \"2025-06-30\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/deals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deals"]
+            }
+          }
+        },
+        {
+          "name": "Get Deals",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/deals?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deals"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "stage", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Deal By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/deals/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deals", ":id"],
+              "variable": [
+                { "key": "id", "value": "DEAL_ID_HERE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Deal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 75000,\n  \"stage\": \"negotiation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/deals/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deals", ":id"],
+              "variable": [
+                { "key": "id", "value": "DEAL_ID_HERE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Deal Stage",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stage\": \"closed_won\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/deals/:id/stage",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deals", ":id", "stage"],
+              "variable": [
+                { "key": "id", "value": "DEAL_ID_HERE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Deal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/deals/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deals", ":id"],
+              "variable": [
+                { "key": "id", "value": "DEAL_ID_HERE" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Followups",
+      "item": [
+        {
+          "name": "Create Followup",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lead\": \"LEAD_ID_HERE\",\n  \"notes\": \"Call back next week\",\n  \"dueDate\": \"2025-04-01T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/followups",
+              "host": ["{{base_url}}"],
+              "path": ["api", "followups"]
+            }
+          }
+        },
+        {
+          "name": "Get Followups",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/followups?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "followups"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Followup",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Updated notes\",\n  \"dueDate\": \"2025-04-05T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/followups/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "followups", ":id"],
+              "variable": [
+                { "key": "id", "value": "FOLLOWUP_ID_HERE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Complete Followup",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/followups/:id/complete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "followups", ":id", "complete"],
+              "variable": [
+                { "key": "id", "value": "FOLLOWUP_ID_HERE" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activities",
+      "item": [
+        {
+          "name": "Create Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lead\": \"LEAD_ID_HERE\",\n  \"type\": \"call\",\n  \"description\": \"Introductory call with client\",\n  \"outcome\": \"Positive - interested in proposal\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/activities",
+              "host": ["{{base_url}}"],
+              "path": ["api", "activities"]
+            }
+          }
+        },
+        {
+          "name": "Get Activity Timeline",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/activities/:leadId",
+              "host": ["{{base_url}}"],
+              "path": ["api", "activities", ":leadId"],
+              "variable": [
+                { "key": "leadId", "value": "LEAD_ID_HERE" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dashboard", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "item": [
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/audit-logs?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "audit-logs"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
